@@ -1,10 +1,13 @@
 import request from '@/utils/request';
+import { APIHOSTNAME } from '../constants/API'
+
 export async function fakeAccountLogin(params) {
-  return request('/api/login/account', {
+  const { userName, password } = params
+  const formData = new FormData();
+  formData.append("AccountName", userName)
+  formData.append("AccountPwd", password)
+  return request(`${APIHOSTNAME}/ERP/Auth/GetToken`, {
     method: 'POST',
-    data: params,
+    body: formData
   });
-}
-export async function getFakeCaptcha(mobile) {
-  return request(`/api/login/captcha?mobile=${mobile}`);
 }

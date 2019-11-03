@@ -88,6 +88,10 @@ export default {
       component: '../layouts/UserLayout',
       routes: [
         {
+          path: '/user',
+          redirect: '/user/login',
+        },
+        {
           name: 'login',
           path: '/user/login',
           component: './user/login',
@@ -96,36 +100,43 @@ export default {
     },
     {
       path: '/',
-      component: '../layouts/SecurityLayout',
+      component: '../layouts/BasicLayout',
+      Routes: ['src/pages/Authorized'],
       routes: [
         {
           path: '/',
-          component: '../layouts/BasicLayout',
           authority: ['admin', 'user'],
-          routes: [
-            {
-              path: '/',
-              redirect: '/welcome',
-            },
-            {
-              path: '/welcome',
-              name: 'welcome',
-              icon: 'smile',
-              component: './Welcome',
-            },
-            {
-              component: './404',
-            },
-          ],
+          component: './index',
+        },
+        {
+          name: 'customermanagement',
+          path: '/customermanagement',
+          authority: ['admin', 'user'],
+          component: './customerManagement',
+        },
+        {
+          name: 'sitemanagement',
+          path: '/sitemanagement',
+          authority: ['admin', 'user'],
+          component: './siteManagement',
+        },
+        {
+          name: 'usermanagement',
+          path: '/usermanagement',
+          authority: ['admin', 'user'],
+          component: './userManagement',
+        },
+        {
+          name: 'taskmanagement',
+          path: '/taskmanagement',
+          authority: ['admin', 'user'],
+          component: './taskManagement',
         },
         {
           component: './404',
         },
       ],
-    },
-    {
-      component: './404',
-    },
+    }
   ],
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
   theme: {
@@ -169,13 +180,13 @@ export default {
     basePath: '/',
   },
   chainWebpack: webpackPlugin,
-  /*
   proxy: {
     '/server/api/': {
-      target: 'https://preview.pro.ant.design/',
+      //target: 'http://139.196.109.94:4001/',
+      target:'http://localhost:5000/',
       changeOrigin: true,
-      pathRewrite: { '^/server': '' },
+      pathRewrite: { '^/server/api': '' },
     },
   },
-  */
+  
 };
