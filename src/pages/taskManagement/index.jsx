@@ -4,6 +4,7 @@ import { connect } from 'dva'
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import Addtask from './Addtask'
 import Edittask from './Edittask'
+import moment from 'moment';
 
 const { confirm } = Modal
 
@@ -22,8 +23,15 @@ export default class taskmanagement extends Component {
     }
     gettasklist = () => {
         const { dispatch } = this.props;
+        const param = {
+            Function: {
+                Name: 'bykeyword',
+                Args: ['', 'Site', 'Venue', 'Customer']
+            }
+        }
         dispatch({
-            type: "taskmanagement/gettasklist"
+            type: "taskmanagement/gettasklist",
+            payload: param
         })
     }
 
@@ -69,32 +77,41 @@ export default class taskmanagement extends Component {
 
         const columns = [
             {
-                title: '账户名',
+                title: '日程名称',
                 dataIndex: 'name',
             },
             {
-                title: '场地编号',
-                dataIndex: 'code',
+                title: '日程时间',
+                dataIndex:'receptionDateTime',
+                render: item => {
+                    return item ? moment(item).format("YYYY-MM-DD HH:mm:ss"):""
+                }
             },
             {
-                title: '场地别名',
-                dataIndex: 'alias',
+                title: '场地名称',
+                render: item => {
+                    return item.site ? item.site.name : ""
+                }
             },
             {
-                title: '场地地址',
-                dataIndex: 'address',
+                title: '场馆名称',
+                render: item => {
+                    return item.venue ? item.venue.name : ""
+                }
             },
             {
-                title: '场地联系方式',
-                dataIndex: 'phone',
+                title: '客户姓名',
+                render: item => {
+                    return item.customer ? item.customer.defaultName : ""
+                }
             },
             {
-                title: '负责人名称',
-                dataIndex: 'leaderName',
+                title: '对接人姓名',
+                dataIndex: 'dockingName',
             },
             {
-                title: '负责人联系方式',
-                dataIndex: 'leaderMobile',
+                title: '对接人联系方式',
+                dataIndex: 'dockingMobile',
             },
             {
                 title: "操作",

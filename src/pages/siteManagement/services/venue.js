@@ -3,7 +3,7 @@ import { APIHOSTNAME } from '../../../constants/API'
 import { stringify } from 'qs';
 
 export async function getvenuelist(param) {
-  return request(`${APIHOSTNAME}/ERP/SRM/Venue/Read/Rows?${stringify(param, { allowDots: true})}`, {
+  return request(`${APIHOSTNAME}/ERP/SRM/Venue/Read/Rows?${stringify(param, { allowDots: true,encodeValuesOnly: true})}`, {
     method: 'POST',
   });
 }

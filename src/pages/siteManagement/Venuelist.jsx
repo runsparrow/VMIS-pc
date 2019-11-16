@@ -30,11 +30,10 @@ export default class venuelist extends Component {
     getvenuelist = () => {
         const { dispatch, siteinfo } = this.props;
         const param = {
-            Funcion: {
+            Function: {
                 Name: 'bysiteid',
-                Args: siteinfo.id
+                Args: [siteinfo.id]
             }
-
         }
         dispatch({
             type: "venuemanagement/getvenuelist",

@@ -83,9 +83,10 @@ const BasicLayout = props => {
 
   useEffect(() => {
     if (dispatch) {
-      // dispatch({
-      //   type: 'user/fetchCurrent',
-      // });
+      //token换取用户
+      dispatch({
+        type: 'user/fetchCurrent',
+      });
       dispatch({
         type: 'settings/getSetting',
       });

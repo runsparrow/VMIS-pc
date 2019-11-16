@@ -1,26 +1,80 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import { Form, Input, Button, message, notification, Icon } from 'antd';
+import { Form, Input, Button, Select, DatePicker } from 'antd';
+import moment from 'moment';
 
-@connect(({ }) => ({}))
+const { Option } = Select;
+
+@connect(({ venuesite, user }) => ({
+    userinfo: user.userinfo,
+    sitelist: venuesite.sitelist,
+    venuelist: venuesite.venuelist,
+    customerlist: venuesite.customerlist
+}))
 @Form.create({})
-export default class Addtask extends Component {
+export default class Edittask extends Component {
+    state = {
+        siteid: null,
+        venueid: null
+    }
+
+    componentDidMount() {
+        this.getsitelist()
+        this.getcunstomerlist()
+    }
+    getcunstomerlist = () => {
+        const { dispatch } = this.props;
+        dispatch({
+            type: "venuesite/getcustomerlist"
+        })
+    }
+    getsitelist = () => {
+        const { dispatch } = this.props;
+        dispatch({
+            type: "venuesite/getsitelist"
+        })
+    }
+    getvenuelist = (id) => {
+        const { dispatch } = this.props;
+        const param = {
+            Function: {
+                Name: 'bysiteid',
+                Args: [id]
+            }
+        }
+        dispatch({
+            type: "venuesite/getvenuelist",
+            payload: param
+        })
+    }
+
+    selectsite = (item) => {
+        this.getvenuelist(item)
+        this.setState({ siteid: item }, () => {
+            this.props.form.setFieldsValue({
+                "venueId": null
+            })
+        })
+    }
 
     handleSubmit = () => {
-        const { dispatch, form, taskinfo } = this.props;
+        const { dispatch, form ,userinfo,taskinfo} = this.props;
         const { validateFields } = form;
-        validateFields(['name', 'code', "alias", 'address', 'phone', 'leaderName', 'leaderMobile'], (err, values) => {
+        validateFields(['name', 'siteId', "venueId", 'receptionDateTime','customerId', 'dockingName', 'dockingMobile'], (err, values) => {
             if (!err) {
+                let receptionid = Object.keys(userinfo).length>0?userinfo.user.userId:""
+                let receptiondatetime = moment(values.receptionDateTime).format("YYYY-MM-DD HH:mm:ss")
                 const param = {
                     entity: {
-                        id: taskinfo.id,
+                        id:taskinfo.id,
                         name: values.name,
-                        code: values.code,
-                        alias: values.alias,
-                        address: values.address,
-                        phone: values.phone,
-                        leaderName: values.leaderName,
-                        leaderMobile: values.leaderMobile
+                        siteId: values.siteId,
+                        venueId: values.venueId,
+                        receptionDateTime: receptiondatetime,
+                        receptionId: receptionid,
+                        customerId:values.customerId,
+                        dockingName: values.dockingName,
+                        dockingMobile:values.dockingMobile
                     }
                 }
                 dispatch({
@@ -34,7 +88,8 @@ export default class Addtask extends Component {
     };
 
     render() {
-        const { form, taskinfo } = this.props;
+        const { form, sitelist, venuelist, customerlist, userinfo,taskinfo } = this.props;
+        const { siteid, venueid } = this.state
         const { getFieldDecorator } = form;
         const formItemLayout = {
             labelCol: {
@@ -63,83 +118,108 @@ export default class Addtask extends Component {
 
         return (
             <Form>
-                <Form.Item label="场地名称" {...formItemLayout}>
+                <Form.Item label="日程名称" {...formItemLayout}>
                     {getFieldDecorator('name', {
                         rules: [
                             {
                                 required: true,
-                                message: "请输入场地名称"
+                                message: "请输入日程名称"
                             },
                         ],
                         initialValue: taskinfo ? taskinfo.name : ''
                     })(<Input />)}
                 </Form.Item>
-                <Form.Item label="场地编号" {...formItemLayout}>
-                    {getFieldDecorator('code', {
+                <Form.Item label="预约场地名称" {...formItemLayout}>
+                    {getFieldDecorator('siteId', {
                         rules: [
                             {
                                 required: true,
-                                message: "请输入场地编号"
+                                message: "请输入预约场地名称"
+                            },
+                        ],
+                        initialValue: taskinfo ? taskinfo.siteId : ''
+                    })(
+                        <Select onChange={this.selectsite}>
+                            {
+                                sitelist.length > 0 ? sitelist.map(p => <Option value={p.id}>{p.name}</Option>) : null
+                            }
+                        </Select>
+                    )}
+                </Form.Item>
+                <Form.Item label="预约场馆名称" {...formItemLayout}>
+                    {getFieldDecorator('venueId', {
+                        rules: [
+                            {
+                                required: true,
+                                message: "请输入预约场馆名称"
+                            },
+                        ],
+                        initialValue: taskinfo ? taskinfo.venueId : ''
+                    })(
+                        <Select disabled={!siteid} onChange={this.selectvenue}>
+                            {
+                                venuelist.length > 0 ? venuelist.map(p => <Option value={p.id}>{p.name}</Option>) : null
+                            }
+                        </Select>
+                    )}
+                </Form.Item>
+                <Form.Item label="接待时间" {...formItemLayout}>
+                    {getFieldDecorator('receptionDateTime', {
+                        rules: [
+                            {
+                                type: 'object',
+                                required: true,
+                                message: "请输入接待时间"
                             }
                         ],
-                        initialValue: taskinfo ? taskinfo.code : ''
-                    })(<Input />)}
+                        initialValue: taskinfo ? moment(taskinfo.receptionDateTime) : moment()
+                    })(<DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />)}
                 </Form.Item>
-                <Form.Item label="场地别名" {...formItemLayout}>
-                    {getFieldDecorator('alias', {
+                <Form.Item label="接待人名称" {...formItemLayout}>
+                    {getFieldDecorator('ReceptionId', {
+                        initialValue: Object.keys(userinfo).length > 0 ? userinfo.user.realName : ''
+                    })(<Input disabled />)}
+                </Form.Item>
+                <Form.Item label="客户" {...formItemLayout}>
+                    {getFieldDecorator('customerId', {
                         rules: [
                             {
                                 required: true,
-                                message: "请输入场地别名"
+                                message: "请选择客户"
                             },
                         ],
-                        initialValue: taskinfo ? taskinfo.alias : ''
-                    })(<Input />)}
+                        initialValue: taskinfo ? taskinfo.customerId : ''
+                    })(
+                        <Select >
+                            {
+                                customerlist.length > 0 ? customerlist.map(p => <Option value={p.id}>{p.defaultName}</Option>) : null
+                            }
+                        </Select>
+                    )}
                 </Form.Item>
-                <Form.Item label="场地地址" {...formItemLayout}>
-                    {getFieldDecorator('address', {
+                <Form.Item label="对接人名称" {...formItemLayout}>
+                    {getFieldDecorator('dockingName', {
                         rules: [
                             {
                                 required: true,
-                                message: "请输入场地地址"
+                                message: "请输入对接人名称"
                             },
                         ],
-                        initialValue: taskinfo ? taskinfo.address : ''
+                        initialValue: taskinfo ? taskinfo.dockingName : ''
                     })(<Input />)}
                 </Form.Item>
-                <Form.Item label="场地电话" {...formItemLayout}>
-                    {getFieldDecorator('phone', {
+                <Form.Item label="对接人联系方式" {...formItemLayout}>
+                    {getFieldDecorator('dockingMobile', {
                         rules: [
                             {
                                 required: true,
-                                message: "请输入场地电话"
+                                message: "请输入对接人联系方式"
                             },
                         ],
-                        initialValue: taskinfo ? taskinfo.phone : ''
+                        initialValue: taskinfo ? taskinfo.dockingMobile : ''
                     })(<Input />)}
                 </Form.Item>
-                <Form.Item label="负责人名称" {...formItemLayout}>
-                    {getFieldDecorator('leaderName', {
-                        rules: [
-                            {
-                                required: true,
-                                message: "请输入负责人名称"
-                            },
-                        ],
-                        initialValue: taskinfo ? taskinfo.leaderName : ''
-                    })(<Input />)}
-                </Form.Item>
-                <Form.Item label="负责人联系方式" {...formItemLayout}>
-                    {getFieldDecorator('leaderMobile', {
-                        rules: [
-                            {
-                                required: true,
-                                message: "请输入负责人联系方式"
-                            },
-                        ],
-                        initialValue: taskinfo ? taskinfo.leaderMobile : ''
-                    })(<Input />)}
-                </Form.Item>
+
                 <Form.Item {...tailFormItemLayout}>
                     <Button style={{ marginRight: '20px' }} onClick={this.props.closed}>取消</Button>
                     <Button type="primary" onClick={this.handleSubmit}>

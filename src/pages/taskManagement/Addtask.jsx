@@ -1,19 +1,32 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { Form, Input, Button, Select, DatePicker } from 'antd';
+import moment from 'moment';
 
 const { Option } = Select;
 
-@connect(({ venuesite }) => ({
+@connect(({ venuesite, user }) => ({
+    userinfo: user.userinfo,
     sitelist: venuesite.sitelist,
-    venuelist: venuesite.venuelist
+    venuelist: venuesite.venuelist,
+    customerlist: venuesite.customerlist
 }))
 @Form.create({})
 export default class Addtask extends Component {
+    state = {
+        siteid: null,
+        venueid: null
+    }
 
     componentDidMount() {
         this.getsitelist()
-        this.getvenuelist()
+        this.getcunstomerlist()
+    }
+    getcunstomerlist = () => {
+        const { dispatch } = this.props;
+        dispatch({
+            type: "venuesite/getcustomerlist"
+        })
     }
     getsitelist = () => {
         const { dispatch } = this.props;
@@ -21,27 +34,46 @@ export default class Addtask extends Component {
             type: "venuesite/getsitelist"
         })
     }
-    getvenuelist = () => {
+    getvenuelist = (id) => {
         const { dispatch } = this.props;
+        const param = {
+            Function: {
+                Name: 'bysiteid',
+                Args: [id]
+            }
+        }
         dispatch({
-            type: "venuesite/getvenuelist"
+            type: "venuesite/getvenuelist",
+            payload: param
+        })
+    }
+
+    selectsite = (item) => {
+        this.getvenuelist(item)
+        this.setState({ siteid: item }, () => {
+            this.props.form.setFieldsValue({
+                "venueId": null
+            })
         })
     }
 
     handleSubmit = () => {
-        const { dispatch, form } = this.props;
+        const { dispatch, form, userinfo } = this.props;
         const { validateFields } = form;
-        validateFields(['name', 'siteId', "venueId", 'receptionDateTime', 'dockingName', 'dockingMobile', 'dockingAddress'], (err, values) => {
+        validateFields(['name', 'siteId', "venueId",'customerId', 'receptionDateTime', 'dockingName', 'dockingMobile'], (err, values) => {
             if (!err) {
+                let receptionid = Object.keys(userinfo).length > 0 ? userinfo.user.userId : ""
+                let receptiondatetime = moment(values.receptionDateTime).format("YYYY-MM-DD HH:mm:ss")
                 const param = {
                     entity: {
                         name: values.name,
                         siteId: values.siteId,
                         venueId: values.venueId,
-                        receptionDateTime: values.receptionDateTime,
+                        receptionDateTime: receptiondatetime,
+                        receptionId: receptionid,
+                        customerId: values.customerId,
                         dockingName: values.dockingName,
-                        dockingMobile: values.dockingMobile,
-                        dockingAddress: values.dockingAddress
+                        dockingMobile: values.dockingMobile
                     }
                 }
                 dispatch({
@@ -55,9 +87,9 @@ export default class Addtask extends Component {
     };
 
     render() {
-        const { form, sitelist, venuelist } = this.props;
+        const { form, sitelist, venuelist, customerlist, userinfo } = this.props;
+        const { siteid, venueid } = this.state
         const { getFieldDecorator } = form;
-        console.log("sitelist", sitelist)
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
@@ -104,7 +136,7 @@ export default class Addtask extends Component {
                             },
                         ],
                     })(
-                        <Select>
+                        <Select onChange={this.selectsite}>
                             {
                                 sitelist.length > 0 ? sitelist.map(p => <Option value={p.id}>{p.name}</Option>) : null
                             }
@@ -120,7 +152,7 @@ export default class Addtask extends Component {
                             },
                         ],
                     })(
-                        <Select>
+                        <Select disabled={!siteid} onChange={this.selectvenue}>
                             {
                                 venuelist.length > 0 ? venuelist.map(p => <Option value={p.id}>{p.name}</Option>) : null
                             }
@@ -137,6 +169,27 @@ export default class Addtask extends Component {
                         ],
                     })(<DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />)}
                 </Form.Item>
+                <Form.Item label="接待人名称" {...formItemLayout}>
+                    {getFieldDecorator('ReceptionId', {
+                        initialValue: Object.keys(userinfo).length > 0 ? userinfo.user.realName : ''
+                    })(<Input disabled />)}
+                </Form.Item>
+                <Form.Item label="客户" {...formItemLayout}>
+                    {getFieldDecorator('customerId', {
+                        rules: [
+                            {
+                                required: true,
+                                message: "请选择客户"
+                            },
+                        ],
+                    })(
+                        <Select >
+                            {
+                                customerlist.length > 0 ? customerlist.map(p => <Option value={p.id}>{p.defaultName}</Option>) : null
+                            }
+                        </Select>
+                    )}
+                </Form.Item>
                 <Form.Item label="对接人名称" {...formItemLayout}>
                     {getFieldDecorator('dockingName', {
                         rules: [
@@ -152,17 +205,7 @@ export default class Addtask extends Component {
                         rules: [
                             {
                                 required: true,
-                                message: "请输入联系方式"
-                            },
-                        ],
-                    })(<Input />)}
-                </Form.Item>
-                <Form.Item label="对接地点" {...formItemLayout}>
-                    {getFieldDecorator('dockingAddress', {
-                        rules: [
-                            {
-                                required: true,
-                                message: "请输入对接地点"
+                                message: "请输入对接人联系方式"
                             },
                         ],
                     })(<Input />)}

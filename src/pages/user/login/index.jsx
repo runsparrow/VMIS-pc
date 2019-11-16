@@ -5,7 +5,9 @@ import Link from 'umi/link';
 import { connect } from 'dva';
 import LoginComponents from './components/Login';
 import styles from './style.less';
+import PropTypes from 'prop-types';
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = LoginComponents;
+import LogoGather from '../../../components/Logo/logo'
 
 @connect(({ login, loading }) => ({
   userLogin: login,
@@ -16,6 +18,11 @@ class Login extends Component {
   state = {
     type: 'account',
     autoLogin: true,
+    image: 'https://zos.alipayobjects.com/rmsportal/gsRUrUdxeGNDVfO.svg',
+    pixSize: 20,
+    pointSize: 10,
+    isMobile: false,
+    show: false,
   };
   changeAutoLogin = e => {
     this.setState({
@@ -78,21 +85,28 @@ class Login extends Component {
     const { status, type: loginType } = userLogin;
     const { type, autoLogin } = this.state;
     return (
-      <div className={styles.main}>
-        <LoginComponents
-          defaultActiveKey={type}
-          onTabChange={this.onTabChange}
-          onSubmit={this.handleSubmit}
-          onCreate={form => {
-            this.loginForm = form;
-          }}
-        >
-          <Tab
+      <div>
+        {/* <LogoGather
+          image={this.state.image}
+          pixSize={this.state.pixSize}
+          pointSizeMin={this.state.pointSize}
+        /> */}
+
+        <div className={styles.main}>
+          <LoginComponents
+            defaultActiveKey={type}
+            onTabChange={this.onTabChange}
+            onSubmit={this.handleSubmit}
+            onCreate={form => {
+              this.loginForm = form;
+            }}
+          >
+            {/* <Tab
             key="account"
             tab={formatMessage({
               id: 'user-login.login.tab-login-credentials',
             })}
-          >
+          > */}
             {status === 'error' &&
               loginType === 'account' &&
               !submitting &&
@@ -136,8 +150,9 @@ class Login extends Component {
                 }
               }}
             />
-          </Tab>
-          {/* <Tab
+
+            {/* </Tab> */}
+            {/* <Tab
             key="mobile"
             tab={formatMessage({
               id: 'user-login.login.tab-login-mobile',
@@ -194,7 +209,7 @@ class Login extends Component {
               ]}
             />
           </Tab>*/}
-          {/* <div>
+            {/* <div>
             <Checkbox checked={autoLogin} onChange={this.changeAutoLogin}>
               <FormattedMessage id="user-login.login.remember-me" />
             </Checkbox>
@@ -207,10 +222,10 @@ class Login extends Component {
               <FormattedMessage id="user-login.login.forgot-password" />
             </a>
           </div> */}
-          <Submit loading={submitting}>
-            <FormattedMessage id="user-login.login.login" />
-          </Submit>
-          {/* <div className={styles.other}>
+            <Submit loading={submitting}>
+              <FormattedMessage id="user-login.login.login" />
+            </Submit>
+            {/* <div className={styles.other}>
             <FormattedMessage id="user-login.login.sign-in-with" />
             <Icon type="alipay-circle" className={styles.icon} theme="outlined" />
             <Icon type="taobao-circle" className={styles.icon} theme="outlined" />
@@ -219,7 +234,8 @@ class Login extends Component {
               <FormattedMessage id="user-login.login.signup" />
             </Link>
           </div> */}
-        </LoginComponents>
+          </LoginComponents>
+        </div>
       </div>
     );
   }

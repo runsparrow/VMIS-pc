@@ -15,7 +15,6 @@ const customerModel = {
                     payload: response
                 });
             }
-
         },
         *addcustomer({ payload }, { call, put }) {
             const response = yield call(addcustomer, payload);

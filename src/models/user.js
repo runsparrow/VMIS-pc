@@ -3,6 +3,7 @@ const UserModel = {
   namespace: 'user',
   state: {
     currentUser: {},
+    userinfo:{}
   },
   effects: {
     *fetch(_, { call, put }) {
@@ -14,9 +15,10 @@ const UserModel = {
     },
 
     *fetchCurrent(_, { call, put }) {
-      const response = yield call(queryCurrent);
+      const token = localStorage.getItem('token') || null;
+      const response = yield call(queryCurrent,token);
       yield put({
-        type: 'saveCurrentUser',
+        type: 'getuserinfobytoken',
         payload: response,
       });
     },
@@ -25,7 +27,9 @@ const UserModel = {
     saveCurrentUser(state, action) {
       return { ...state, currentUser: action.payload || {} };
     },
-
+    getuserinfobytoken(state,action){
+      return { ...state, userinfo: action.payload || {} };
+    },
     changeNotifyCount(
       state = {
         currentUser: {},

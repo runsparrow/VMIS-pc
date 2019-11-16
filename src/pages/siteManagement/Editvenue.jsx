@@ -14,6 +14,7 @@ export default class Editvenue extends Component {
                 const param = {
                     entity: {
                         id:venueinfo.id,
+                        siteId:venueinfo.siteId,
                         name:values.name,
                         code:values.code,
                         alias:values.alias,

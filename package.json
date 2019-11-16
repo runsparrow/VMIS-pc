@@ -19,7 +19,7 @@
     "lint:prettier": "check-prettier lint",
     "lint:style": "stylelint --fix \"src/**/*.less\" --syntax less",
     "prettier": "prettier -c --write \"**/*\"",
-    "start": "umi dev",
+    "start": "UMI_UI=none umi dev",
     "start:no-mock": "cross-env MOCK=none umi dev",
     "test": "umi test",
     "test:all": "node ./tests/run-tests.js",
@@ -56,7 +56,9 @@
     "umi-plugin-pro-block": "^1.3.4",
     "umi-plugin-react": "^1.10.1",
     "umi-request": "^1.2.7",
-    "webpack-theme-color-replacer": "^1.2.15"
+    "webpack-theme-color-replacer": "^1.2.15",
+    "rc-tween-one":"2.6.5",
+    "enquire-js":"0.2.1"
   },
   "devDependencies": {
     "@ant-design/pro-cli": "^1.0.13",

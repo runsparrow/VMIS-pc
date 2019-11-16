@@ -1,17 +1,17 @@
-import { getsitelist, getvenuelist } from '../services/site'
+import { getsitelist, getvenuelist,getcustomerlist } from '../services/site'
 import { message } from 'antd';
 
 const VenueSiteModel = {
     namespace: 'venuesite',
     state: {
         sitelist: [],
-        venuelist:[]
+        venuelist:[],
+        customerlist:[]
     },
     effects: {
         *getsitelist(_, { call, put }) {
             const response = yield call(getsitelist);
             if (response && response.error == null) {
-                console.log("response",response)
                 yield put({
                     type: 'savesitelist',
                     payload: response
@@ -23,9 +23,16 @@ const VenueSiteModel = {
             if (response && response.error == null) {
                 yield put({
                     type: 'savevenuelist',
-                    payload: {
-                        list: response.rows
-                    },
+                    payload: response
+                });
+            }
+        },
+        *getcustomerlist(_, { call, put }) {
+            const response = yield call(getcustomerlist);
+            if (response && response.error == null) {
+                yield put({
+                    type: 'savecustomerlist',
+                    payload: response
                 });
             }
         },
@@ -36,6 +43,9 @@ const VenueSiteModel = {
         },
         savevenuelist(state, action) {
             return { ...state, venuelist: action.payload };
+        },
+        savecustomerlist(state, action) {
+            return { ...state, customerlist: action.payload };
         },
     },
 };
