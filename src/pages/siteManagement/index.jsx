@@ -17,7 +17,8 @@ export default class sitemanagement extends Component {
     state = {
         visible: false,
         sitetype: 0,
-        siteinfo: null
+        siteinfo: null,
+        expandedRowKeys:[0]
     }
 
     componentDidMount() {
@@ -69,9 +70,30 @@ export default class sitemanagement extends Component {
         });
     }
 
+    expandedRowRender = (record, index, indent, expanded) => {
+        const { visible, expandedRowKeys } = this.state
+        if (record.rowKey == expandedRowKeys[0])
+            return <Venuelist mdvisible={visible} siteinfo={record} />
+    }
+    onExpand = (expanded, record) => {
+        if (expanded) {
+            this.setState({ expandedRowKeys: [record.rowKey] });
+        } else {
+            this.setState({ expandedRowKeys: [] });
+        }
+    }
+
     render() {
         const { sitelist } = this.props
-        const { sitetype, siteinfo, visible } = this.state
+        const { sitetype, siteinfo, visible,expandedRowKeys } = this.state
+
+        let sitelistbyrow = []
+        sitelistbyrow = sitelist;
+        if (sitelistbyrow.length > 0) {
+            for (let i = 0; i < sitelistbyrow.length; i++) {
+                sitelistbyrow[i].rowKey = i;
+            }
+        }
 
         const columns = [
             {
@@ -116,7 +138,6 @@ export default class sitemanagement extends Component {
             }
         ]
 
-
         return (
             <PageHeaderWrapper style={{ height: "64px", flexWrap: "wrap-reverse", display: "flex", alignItems: "center" }} title=" ">
                 <Card bordered={false}>
@@ -124,8 +145,10 @@ export default class sitemanagement extends Component {
                         <Button type="primary" onClick={this.newsite}>新建场地</Button>
                     </div>
                     <Table columns={columns}
-                        expandedRowRender={(record, index, indent, expanded) => expanded ? <Venuelist mdvisible={visible} siteinfo={record} /> : null}
-                        dataSource={sitelist} pagination={false} />
+                    expandedRowKeys={expandedRowKeys}
+                        onExpand={this.onExpand}
+                        expandedRowRender={this.expandedRowRender}
+                        dataSource={sitelistbyrow} pagination={false} />
                 </Card>
                 {visible ? (
                     <Modal
