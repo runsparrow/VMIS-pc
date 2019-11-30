@@ -5,8 +5,8 @@ import moment from 'moment';
 
 const { Option } = Select;
 
-@connect(({ venuesite, user }) => ({
-    userinfo: user.userinfo,
+@connect(({ venuesite, user, taskuser }) => ({
+    userlist: taskuser.userlist,
     sitelist: venuesite.sitelist,
     venuelist: venuesite.venuelist,
     customerlist: venuesite.customerlist
@@ -19,6 +19,7 @@ export default class Edittask extends Component {
     }
 
     componentDidMount() {
+        this.getReceptionId()
         this.getsitelist()
         this.getcunstomerlist()
     }
@@ -32,6 +33,12 @@ export default class Edittask extends Component {
         const { dispatch } = this.props;
         dispatch({
             type: "venuesite/getsitelist"
+        })
+    }
+    getReceptionId = () => {
+        const { dispatch } = this.props;
+        dispatch({
+            type: "taskuser/getuserlist"
         })
     }
     getvenuelist = (id) => {
@@ -58,23 +65,23 @@ export default class Edittask extends Component {
     }
 
     handleSubmit = () => {
-        const { dispatch, form ,userinfo,taskinfo} = this.props;
+        const { dispatch, form, userinfo, taskinfo } = this.props;
         const { validateFields } = form;
-        validateFields(['name', 'siteId', "venueId", 'receptionDateTime','customerId', 'dockingName', 'dockingMobile'], (err, values) => {
+        validateFields(['name', 'siteId', "venueId", 'receptionDateTime', 'customerId', 'dockingName', 'dockingMobile'], (err, values) => {
             if (!err) {
-                let receptionid = Object.keys(userinfo).length>0?userinfo.user.userId:""
+                let receptionid = Object.keys(userinfo).length > 0 ? userinfo.user.userId : ""
                 let receptiondatetime = moment(values.receptionDateTime).format("YYYY-MM-DD HH:mm:ss")
                 const param = {
                     entity: {
-                        id:taskinfo.id,
+                        id: taskinfo.id,
                         name: values.name,
                         siteId: values.siteId,
                         venueId: values.venueId,
                         receptionDateTime: receptiondatetime,
                         receptionId: receptionid,
-                        customerId:values.customerId,
+                        customerId: values.customerId,
                         dockingName: values.dockingName,
-                        dockingMobile:values.dockingMobile
+                        dockingMobile: values.dockingMobile
                     }
                 }
                 dispatch({
@@ -88,7 +95,7 @@ export default class Edittask extends Component {
     };
 
     render() {
-        const { form, sitelist, venuelist, customerlist, userinfo,taskinfo } = this.props;
+        const { form, sitelist, venuelist, customerlist, userlist, taskinfo } = this.props;
         const { siteid, venueid } = this.state
         const { getFieldDecorator } = form;
         const formItemLayout = {
@@ -177,7 +184,7 @@ export default class Edittask extends Component {
                 </Form.Item>
                 <Form.Item label="接待人名称" {...formItemLayout}>
                     {getFieldDecorator('ReceptionId', {
-                        initialValue: Object.keys(userinfo).length > 0 ? userinfo.user.realName : ''
+                         initialValue: (taskinfo && userlist.length>0) ? userlist.filter(p => p.id == taskinfo.receptionId)[0].realName : ""
                     })(<Input disabled />)}
                 </Form.Item>
                 <Form.Item label="客户" {...formItemLayout}>
