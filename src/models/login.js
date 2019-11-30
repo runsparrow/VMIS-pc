@@ -20,7 +20,7 @@ const Model = {
             currentAuthority: 'admin',
           },
         }); // Login successfully
-        localStorage.setItem('token', response.data.tokenValue);
+        localStorage.setItem('token', response.token.tokenValue);
 
         reloadAuthorized();
         yield put(routerRedux.push('/'));
