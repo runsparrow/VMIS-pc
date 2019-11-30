@@ -1,4 +1,4 @@
-import { getuserlist, adduser, getuser ,updateuser,deluser} from '../services/user'
+import { getuserlist, adduser, unbind ,updateuser,deluser} from '../services/user'
 import { message } from 'antd';
 
 const UserModel = {
@@ -43,6 +43,14 @@ const UserModel = {
                 message.success("删除成功")
             } else {
                 message.error("删除失败")
+            }
+        },
+        *unbind({ payload }, { call, put }) {
+            const response = yield call(unbind, payload);
+            if (response && !response.Exception) {
+                message.success("解绑成功")
+            } else {
+                message.error("解绑失败")
             }
         },
     },

@@ -31,3 +31,10 @@ export async function deluser(param) {
     method: 'POST'
   });
 }
+
+
+export async function unbind(param) {
+  return request(`${APIHOSTNAME}/ERP/AVM/User/Update?${stringify(param, { allowDots: true,encodeValuesOnly: true})}`, {
+    method: 'POST'
+  });
+}

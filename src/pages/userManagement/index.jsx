@@ -48,7 +48,7 @@ export default class usermanagement extends Component {
                             id: item.id
                         }
                     }
-                }).then(item=>{
+                }).then(item => {
                     that.getuserlist()
                 })
             },
@@ -57,6 +57,22 @@ export default class usermanagement extends Component {
     }
     hideModal = () => {
         this.setState({ visible: false }, () => {
+            this.getuserlist()
+        })
+    }
+    unbind = (item) => {
+        const { dispatch } = this.props
+        dispatch({
+            type: "usermanagement/unbind",
+            payload: {
+                Function: {
+                    Name: 'WeChatUnbind',
+                },
+                entity: {
+                    id: item.id
+                }
+            }
+        }).then(item => {
             this.getuserlist()
         })
     }
@@ -79,9 +95,22 @@ export default class usermanagement extends Component {
                 dataIndex: 'mobile',
             },
             {
+                title: '是否已绑定微信小程序',
+                dataIndex: 'weChatOpenId',
+                render: (item) => {
+                    if (item) {
+                        return "是"
+                    } else {
+                        return "否"
+                    }
+                }
+            },
+            {
                 title: "操作",
                 render: (item) => (
                     <span>
+                        <a disabled={!item.weChatOpenId} onClick={() => this.unbind(item)}>解绑小程序</a>
+                        <Divider type="vertical" />
                         <a onClick={() => this.edit(item)}>编辑</a>
                         <Divider type="vertical" />
                         <a onClick={() => this.del(item)}>删除</a>
