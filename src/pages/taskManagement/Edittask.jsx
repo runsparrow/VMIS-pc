@@ -9,7 +9,8 @@ const { Option } = Select;
     userlist: taskuser.userlist,
     sitelist: venuesite.sitelist,
     venuelist: venuesite.venuelist,
-    customerlist: venuesite.customerlist
+    customerlist: venuesite.customerlist,
+    userinfo: user.userinfo
 }))
 @Form.create({})
 export default class Edittask extends Component {
@@ -69,6 +70,7 @@ export default class Edittask extends Component {
         const { validateFields } = form;
         validateFields(['name', 'siteId', "venueId", 'receptionDateTime', 'customerId', 'dockingName', 'dockingMobile'], (err, values) => {
             if (!err) {
+                console.log("userinfo", userinfo)
                 let receptionid = Object.keys(userinfo).length > 0 ? userinfo.user.userId : ""
                 let receptiondatetime = moment(values.receptionDateTime).format("YYYY-MM-DD HH:mm:ss")
                 const param = {
@@ -84,6 +86,7 @@ export default class Edittask extends Component {
                         dockingMobile: values.dockingMobile
                     }
                 }
+                console.log("param", param)
                 dispatch({
                     type: 'taskmanagement/updatetask',
                     payload: param,
@@ -184,7 +187,7 @@ export default class Edittask extends Component {
                 </Form.Item>
                 <Form.Item label="接待人名称" {...formItemLayout}>
                     {getFieldDecorator('ReceptionId', {
-                         initialValue: (taskinfo && userlist.length>0) ? userlist.filter(p => p.id == taskinfo.receptionId)[0].realName : ""
+                        initialValue: (taskinfo && userlist.length > 0) ? userlist.filter(p => p.id == taskinfo.receptionId)[0].realName : ""
                     })(<Input disabled />)}
                 </Form.Item>
                 <Form.Item label="客户" {...formItemLayout}>
